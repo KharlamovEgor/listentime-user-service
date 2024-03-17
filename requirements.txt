@@ -1,0 +1,6 @@
+fastapi
+sqlalchemy
+aiosqlite
+uvicorn
+passlib[bcrypt] 
+python-multipart
