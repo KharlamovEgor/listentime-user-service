@@ -1,5 +1,5 @@
 from sqlalchemy import delete, update, select
-from app.schemas import SUser, SUserAdd
+from app.models.user_models import SUser, SUserAdd
 from app.database import UserOrm, new_session
 
 

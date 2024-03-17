@@ -1,14 +1,20 @@
+from datetime import timedelta
 from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException, status
-from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
+from fastapi.security import OAuth2PasswordRequestForm
 
-from app.hashing import Hasher
-from app.repository import UserRepository
-from app.schemas import SUser
+from app.config import Settings, get_settings
+from app.models.auth_models import Token
+from app.models.user_models import SUser
+from app.utils.auth_utils import (
+    authenticate_user,
+    create_access_token,
+    oauth2_scheme,
+    get_current_user,
+)
 
 
 authorize_router = APIRouter(prefix="/auth", tags=["Authorization"])
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/token")
 
 
 @authorize_router.get("/")
@@ -16,30 +22,27 @@ async def test_auth(token: Annotated[str, Depends(oauth2_scheme)]):
     return {"token": token}
 
 
-# token == username == email
-async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]):
-    user = await UserRepository.find_one(token)
+# username == email
+@authorize_router.post("/token")
+async def login_for_access_token(
+    form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
+    settings: Annotated[Settings, Depends(get_settings)],
+):
+    user = await authenticate_user(form_data.username, form_data.password)
+    print(user)
+
     if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid authentication credentials",
+            detail="Incorrect username or password",
             headers={"WWW-Authenticate": "Bearer"},
         )
-    return user
 
-
-# username == email
-@authorize_router.post("/token")
-async def login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()]):
-    user = await UserRepository.find_one(form_data.username)
-
-    if not user:
-        raise HTTPException(status_code=400, detail="Incorrect username or password")
-
-    if not Hasher.verify_password(form_data.password, user.password):
-        raise HTTPException(status_code=400, detail="Incorrect username or password")
-
-    return {"access_token": user.email, "token_type": "bearer"}
+    access_token_expires = timedelta(minutes=settings.access_token_expire_minutes)
+    access_token = create_access_token(
+        data={"sub": user.email}, settings=settings, expires_delta=access_token_expires
+    )
+    return Token(access_token=access_token, token_type="bearer")
 
 
 @authorize_router.get("/me")

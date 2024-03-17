@@ -4,3 +4,6 @@ aiosqlite
 uvicorn
 passlib[bcrypt] 
 python-multipart
+python-jose[cryptography]
+pydantic-settings
+python-dotenv

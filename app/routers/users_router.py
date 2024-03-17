@@ -3,7 +3,7 @@ from fastapi import APIRouter, Depends
 
 from app.hashing import Hasher
 from app.repository import UserRepository
-from app.schemas import SUser, SUserAdd, SUserId
+from app.models.user_models import SUser, SUserAdd, SUserId
 
 
 user_router = APIRouter(prefix="/users", tags=["users"])
