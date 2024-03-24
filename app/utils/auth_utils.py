@@ -7,7 +7,7 @@ from jose import JWTError, jwt
 from app.hashing import Hasher
 from app.models.auth_models import TokenData
 from app.models.user_models import SUser
-from app.repository import UserRepository
+from app.repos.user_repository import UserRepository
 from app.config import Settings, get_settings
 
 

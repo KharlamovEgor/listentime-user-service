@@ -2,7 +2,7 @@ from typing import Annotated
 from fastapi import APIRouter, Depends
 
 from app.hashing import Hasher
-from app.repository import UserRepository
+from app.repos.user_repository import UserRepository
 from app.models.user_models import SUser, SUserAdd, SUserId
 
 
@@ -36,5 +36,5 @@ async def update_user(id: int, user: Annotated[SUserAdd, Depends()]) -> SUserId:
 
 
 @user_router.delete("{email}")
-async def delete_user(email: str) -> SUser:
-    return await UserRepository.delete_one(email)
+async def delete_user(email: str):
+    await UserRepository.delete_one(email)

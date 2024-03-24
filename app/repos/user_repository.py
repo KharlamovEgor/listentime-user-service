@@ -46,10 +46,8 @@ class UserRepository:
             await session.commit()
 
     @classmethod
-    async def delete_one(cls, email: str) -> SUser:
+    async def delete_one(cls, email: str):
         async with new_session() as session:
             query = delete(UserOrm).where(UserOrm.email == email)
-            result = await session.execute(query)
-            user_model = result.scalar()
-            user_schema = SUser.model_validate(user_model)
-            return user_schema
+            await session.execute(query)
+            await session.commit()

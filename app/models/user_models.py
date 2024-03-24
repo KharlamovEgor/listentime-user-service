@@ -1,4 +1,4 @@
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict 
 
 
 class SUserAdd(BaseModel):
@@ -15,3 +15,5 @@ class SUser(SUserAdd):
 class SUserId(BaseModel):
     user_id: int
     ok: bool = True
+
+
